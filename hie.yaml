@@ -1,0 +1,8 @@
+cradle:
+  cabal:
+    - path: ./src
+      component: "lib:sat-solving"
+    - path: ./cnf-markt/src
+      component: "lib:cnf-market"
+    - path: ./cnf-markt/app
+      component: "exe:cnf-market-exe"
