@@ -2,7 +2,7 @@ cradle:
   cabal:
     - path: ./src
       component: "lib:sat-solving"
-    - path: ./cnf-markt/src
+    - path: ./cnf-market/src
       component: "lib:cnf-market"
-    - path: ./cnf-markt/app
+    - path: ./cnf-market/app
       component: "exe:cnf-market-exe"
