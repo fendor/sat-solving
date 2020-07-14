@@ -12,7 +12,7 @@ data Cnf = Cnf
   , cnfNumVars :: Int
   , cnfNumClauses :: Int
   , cnfComment :: [Text]
-  }
+  } deriving (Show, Eq, Read)
 
 type Assignment = [Literal]
 

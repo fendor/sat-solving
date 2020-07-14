@@ -10,34 +10,32 @@ import qualified Data.Set as Set
 import Data.Set (Set)
 import MiniSat
 import Control.Monad
+import RandomSat
+import System.Random
 
 type LiteralMap = Map Lit Literal
 type VisitedMap = IntMap.IntMap Lit
 
-findUnsatCore :: Cnf -> IO [Clause]
+findUnsatCore :: Cnf -> IO (Set Clause)
 findUnsatCore initCnf = do
-  let clauses = cnfClauses initCnf
+  let clauses = Set.fromList $ cnfClauses initCnf
   sat <- isSat clauses
   if sat
-    then pure []
-    else loop clauses
+    then pure Set.empty
+    else loop Set.empty clauses
   where
-    go (left, !dirty, []) = pure (left, dirty)
-    go (left, !dirty, x:xs) = do
-      isSat (left ++ xs)
-        >>= \case
-          True -> go (x:left, dirty, xs)
-          False -> go (left, dirty || True, xs)
+    loop core clauses
+      | Set.null clauses = pure core
+      | otherwise = do
+          let (e, clauses') = Set.deleteFindMin clauses
+          isSat (core `Set.union` clauses')
+            >>= \case
+            False -> loop core clauses'
+            True -> loop (e `Set.insert` core) clauses'
 
-    loop oldClauses = do
-      (newCnf, dirty) <- go ([], False, oldClauses)
-      if not dirty
-        then pure newCnf
-        else loop newCnf
-
-isSat :: [Clause] -> IO Bool
+isSat :: Set Clause -> IO Bool
 isSat clauses = withNewSolverAsync $ \solver -> do
-  (sat,_,_) <- solveCnf solver clauses
+  (sat,_,_) <- solveCnf solver (Set.toList clauses)
   pure sat
 
 solveCnf :: Solver -> [Clause] -> IO (Bool, LiteralMap, VisitedMap)
@@ -70,6 +68,11 @@ solveCnf solver clauses =  do
           else lit
 
     pure (rLit: cl, lm, vm)
+
+myRandomCnf :: Int -> Int -> Int -> IO Cnf
+myRandomCnf clauseLen vars varsPerClause = do
+  gen <- getStdGen
+  pure $ randomCnf (RandomCnfConfig clauseLen vars varsPerClause []) gen
 
 testdata :: Cnf
 testdata = Cnf
