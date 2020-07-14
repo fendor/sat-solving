@@ -1,27 +1,47 @@
+{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE LambdaCase #-}
 module UnsatCore where
 
 import Cnf
 import Data.Map (Map)
 import qualified Data.Map as Map
 import qualified Data.IntMap as IntMap
+import qualified Data.Set as Set
+import Data.Set (Set)
 import MiniSat
-import Control.Monad (foldM)
+import Control.Monad
 
 type LiteralMap = Map Lit Literal
 type VisitedMap = IntMap.IntMap Lit
 
 findUnsatCore :: Cnf -> IO [Clause]
-findUnsatCore cnf = withNewSolverAsync $ \solver -> do
-    (sat, cm, lm) <- solveCnf solver cnf
-    print cm
-    print lm
-    print sat
-    pure []
+findUnsatCore initCnf = do
+  let clauses = cnfClauses initCnf
+  sat <- isSat clauses
+  if sat
+    then pure []
+    else loop clauses
+  where
+    go (left, !dirty, []) = pure (left, dirty)
+    go (left, !dirty, x:xs) = do
+      isSat (left ++ xs)
+        >>= \case
+          True -> go (x:left, dirty, xs)
+          False -> go (left, dirty || True, xs)
 
+    loop oldClauses = do
+      (newCnf, dirty) <- go ([], False, oldClauses)
+      if not dirty
+        then pure newCnf
+        else loop newCnf
 
+isSat :: [Clause] -> IO Bool
+isSat clauses = withNewSolverAsync $ \solver -> do
+  (sat,_,_) <- solveCnf solver clauses
+  pure sat
 
-solveCnf :: Solver -> Cnf -> IO (Bool, LiteralMap, VisitedMap)
-solveCnf solver cnf =  do
+solveCnf :: Solver -> [Clause] -> IO (Bool, LiteralMap, VisitedMap)
+solveCnf solver clauses =  do
     (cm, lm) <- foldM (\(lm, visited) clause -> do
       (newClause, cm, lm) <-
         foldM
@@ -31,7 +51,7 @@ solveCnf solver cnf =  do
             clause
       addClause solver newClause
       pure (cm, lm)
-      ) (Map.empty, IntMap.empty) (cnfClauses cnf)
+      ) (Map.empty, IntMap.empty) clauses
     sat <- solve solver []
     pure (sat, cm, lm)
   where
@@ -55,6 +75,14 @@ testdata :: Cnf
 testdata = Cnf
   { cnfClauses = [[1,2,3,4], [-1, -3, 2], [-3,2]]
   , cnfNumVars = 4
+  , cnfNumClauses = 3
+  , cnfComment = []
+  }
+
+unsatFormula :: Cnf
+unsatFormula = Cnf
+  { cnfClauses = [[1], [-1], [1,2,3]]
+  , cnfNumVars = 3
   , cnfNumClauses = 3
   , cnfComment = []
   }
