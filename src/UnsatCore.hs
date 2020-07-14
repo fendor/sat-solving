@@ -35,10 +35,10 @@ findUnsatCore initCnf = do
 
 isSat :: Set Clause -> IO Bool
 isSat clauses = withNewSolverAsync $ \solver -> do
-  (sat,_,_) <- solveCnf solver (Set.toList clauses)
+  (sat,_,_) <- solveCnf solver clauses
   pure sat
 
-solveCnf :: Solver -> [Clause] -> IO (Bool, LiteralMap, VisitedMap)
+solveCnf :: Solver -> Set Clause -> IO (Bool, LiteralMap, VisitedMap)
 solveCnf solver clauses =  do
     (cm, lm) <- foldM (\(lm, visited) clause -> do
       (newClause, cm, lm) <-
