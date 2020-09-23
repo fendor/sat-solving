@@ -1,13 +1,11 @@
-{-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE LambdaCase #-}
 module UnsatCore where
 
 import Cnf
 import Data.Map (Map)
 import qualified Data.Map as Map
 import qualified Data.IntMap as IntMap
-import qualified Data.Set as Set
-import Data.Set (Set)
+import qualified Data.Sequence as Seq
+import Data.Sequence (Seq(..), (<|), (|>))
 import MiniSat
 import Control.Monad
 import RandomSat
@@ -16,29 +14,29 @@ import System.Random
 type LiteralMap = Map Lit Literal
 type VisitedMap = IntMap.IntMap Lit
 
-findUnsatCore :: Cnf -> IO (Maybe (Set Clause))
+findUnsatCore :: Cnf -> IO (Maybe (Seq Clause))
 findUnsatCore initCnf = do
-  let clauses = Set.fromList $ cnfClauses initCnf
+  let clauses = Seq.fromList $ cnfClauses initCnf
   sat <- isSat clauses
   if sat
     then pure Nothing
-    else Just <$> loop Set.empty clauses
+    else Just <$> loop Seq.empty clauses
   where
     loop core clauses
-      | Set.null clauses = pure core
+      | Seq.null clauses = pure core
       | otherwise = do
-          let (e, clauses') = Set.deleteFindMin clauses
-          isSat (core `Set.union` clauses')
+          let e :<| clauses' = clauses
+          isSat (core <> clauses')
             >>= \case
             False -> loop core clauses'
-            True -> loop (e `Set.insert` core) clauses'
+            True -> loop (e <| core) clauses'
 
-isSat :: Set Clause -> IO Bool
+isSat :: Foldable t => t Clause -> IO Bool
 isSat clauses = withNewSolverAsync $ \solver -> do
   (sat,_,_) <- solveCnf solver clauses
   pure sat
 
-solveCnf :: Solver -> Set Clause -> IO (Bool, LiteralMap, VisitedMap)
+solveCnf :: Foldable t => Solver -> t Clause -> IO (Bool, LiteralMap, VisitedMap)
 solveCnf solver clauses =  do
     (cm, lm) <- foldM (\(lm, visited) clause -> do
       (newClause, cm, lm) <-
