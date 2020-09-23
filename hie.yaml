@@ -2,6 +2,10 @@ cradle:
   cabal:
     - path: ./src
       component: "lib:sat-solving"
+    - path: ./app
+      component: "exe:sat-solving"
+    - path: ./benchmarks
+      component: "bench:sat-solving-benchmark"
     - path: ./cnf-market/src
       component: "lib:cnf-market"
     - path: ./cnf-market/app

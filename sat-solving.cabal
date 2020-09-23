@@ -26,6 +26,24 @@ library
   hs-source-dirs:   src
   default-language: Haskell2010
 
+benchmark sat-solving-benchmark
+  import: exts
+  main-is:          Bench.hs
+
+  -- other-modules:
+  -- other-extensions:
+  build-depends:
+    , base
+    , sat-solving
+    , cnf-market
+    , stopwatch
+    , criterion
+    , random
+
+  hs-source-dirs:   benchmarks
+  default-language: Haskell2010
+  type: exitcode-stdio-1.0
+
 executable sat-solving
   import: exts
   main-is:          Main.hs
