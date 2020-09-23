@@ -4,8 +4,9 @@
 
 module CnfGen where
 
-import ClassyPrelude
+import ClassyPrelude hiding (nub)
 import Cnf
+import Data.Semigroup
 import Data.List (nub)
 import Data.Ix (range)
 

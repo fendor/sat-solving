@@ -1,7 +1,9 @@
 module Cnf where
 
-import ClassyPrelude
-import Data.List (nub)
+import ClassyPrelude hiding (maximumMay, maximum)
+import Data.List (nub, maximum)
+import Safe (maximumMay)
+
 
 type Literal = Int
 
@@ -36,7 +38,7 @@ commentLine c = Cnf [] 0 0 [c]
 cnfFromClauses :: [Clause] -> Cnf
 cnfFromClauses clauses = Cnf clauses maxVar (length clauses) []
   where
-    maxVar = maximumEx . mapMaybe maximumMay $ clauses
+    maxVar = maximum . mapMaybe maximumMay $ clauses
 
 satisfies :: Assignment -> Clause -> Bool
 satisfies assignment = any (`elem` assignment)

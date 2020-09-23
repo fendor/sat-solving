@@ -16,13 +16,13 @@ import System.Random
 type LiteralMap = Map Lit Literal
 type VisitedMap = IntMap.IntMap Lit
 
-findUnsatCore :: Cnf -> IO (Set Clause)
+findUnsatCore :: Cnf -> IO (Maybe (Set Clause))
 findUnsatCore initCnf = do
   let clauses = Set.fromList $ cnfClauses initCnf
   sat <- isSat clauses
   if sat
-    then pure Set.empty
-    else loop Set.empty clauses
+    then pure Nothing
+    else Just <$> loop Set.empty clauses
   where
     loop core clauses
       | Set.null clauses = pure core
