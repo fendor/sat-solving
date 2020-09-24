@@ -13,7 +13,7 @@ reduceToQCir Cnf {..} =
       "forall(" ++ intercalate ", " vVars ++ ")",
       "forall(" ++ intercalate ", " dVars ++ ")",
       "exists(" ++ intercalate ", " vpVars ++ ")",
-      "output(Fo)",
+      "output(Q)",
       unlines buildQ1,
       unlines buildDNotU,
       "minOneD = or(" ++ intercalate ", " dVars ++ ")",
@@ -51,6 +51,6 @@ reduceToQCir Cnf {..} =
         names = map (("dComb" ++) . show) [1 .. (length $ combineDvars dVars)]
     buildFdu :: [String]
     buildFdu = (zipWith4 (\u d c n -> n ++ " = or(-" ++ u ++ ", -" ++ d ++ ", " ++ (intercalate ", " (map getLiteral c)) ++ ")") uVars dVars cnfClauses names) ++ 
-        ["Fu = and(" ++ intercalate ", " names ++ ")"]
+        ["Fdu = and(" ++ intercalate ", " names ++ ")"]
       where
         names = map (("fdu" ++) . show) clauseNums
