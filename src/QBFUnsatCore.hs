@@ -36,8 +36,8 @@ reduceToQCir Cnf {..} =
         ++ ["Q1 = and(" ++ intercalate ", " clauseNames ++ ")"]
       where
         clauseNames = map (("q1Clause" ++) . show) clauseNums
-    getLiteral :: Int -> String
-    getLiteral ind = (if ind < 0 then "-" else "") ++ (vVars !! (abs ind - 1))
+        getLiteral :: Int -> String
+        getLiteral ind = (if ind < 0 then "-" else "") ++ (vVars !! (abs ind - 1))
     buildDNotU :: [String]
     buildDNotU = (zipWith3 (\d u n -> n ++ " = and(" ++ d ++ ", -" ++ u ++ ")") dVars uVars names) ++ ["DNotU = or(" ++ intercalate ", " names ++ ")"]
       where
@@ -54,3 +54,5 @@ reduceToQCir Cnf {..} =
         ["Fdu = and(" ++ intercalate ", " names ++ ")"]
       where
         names = map (("fdu" ++) . show) clauseNums
+        getLiteral :: Int -> String
+        getLiteral ind = (if ind < 0 then "-" else "") ++ (vpVars !! (abs ind - 1))
