@@ -7,7 +7,7 @@ import UnsatCore
 -- Our benchmark harness.
 main :: IO ()
 main = do
-  let stdGen = mkStdGen 45
+  let stdGen = mkStdGen 46
   let gens = randomGens stdGen
   let cnfs clauseLen variables clauseNum gen =
         let randomCnfConfig =
