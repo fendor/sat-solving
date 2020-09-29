@@ -1,9 +1,28 @@
 {-# LANGUAGE RecordWildCards #-}
+
 module QBFUnsatCore where
 
-
 import Cnf
-import Data.List (intercalate, zipWith4)
+import Data.Char (isDigit)
+import Data.List (intercalate, isPrefixOf, zipWith4)
+import Data.Sequence (Seq)
+import qualified Data.Sequence as Seq
+import System.Exit
+import System.Process
+
+findUnsatCore :: Cnf -> IO (Maybe (Seq Clause))
+findUnsatCore cnf = do
+  let reduction = reduceToQCir cnf
+  let fp = "findUnsatCore.qcir"
+  writeFile fp reduction
+  (_exitCode, sout, _serr) <- readProcessWithExitCode "qfun" [fp] ""
+  pure $ Just $ Seq.fromList $ resultToClauses $ last $ lines sout
+  where
+    resultToClauses :: String -> [Clause]
+    resultToClauses s =
+      let stringClauses = filter ("+" `isPrefixOf`) $ words s
+          indices = map (subtract 1 . read . filter isDigit) stringClauses
+       in map (cnfClauses cnf !!) indices
 
 reduceToQCir :: Cnf -> String
 reduceToQCir Cnf {..} =
@@ -50,8 +69,9 @@ reduceToQCir Cnf {..} =
         combineDvars (x : xs) = map (\y -> " = or(-" ++ x ++ ", -" ++ y ++ ")") xs ++ combineDvars xs
         names = map (("dComb" ++) . show) [1 .. (length $ combineDvars dVars)]
     buildFdu :: [String]
-    buildFdu = (zipWith4 (\u d c n -> n ++ " = or(-" ++ u ++ ", -" ++ d ++ ", " ++ (intercalate ", " (map getLiteral c)) ++ ")") uVars dVars cnfClauses names) ++ 
-        ["Fdu = and(" ++ intercalate ", " names ++ ")"]
+    buildFdu =
+      (zipWith4 (\u d c n -> n ++ " = or(-" ++ u ++ ", -" ++ d ++ ", " ++ (intercalate ", " (map getLiteral c)) ++ ")") uVars dVars cnfClauses names)
+        ++ ["Fdu = and(" ++ intercalate ", " names ++ ")"]
       where
         names = map (("fdu" ++) . show) clauseNums
         getLiteral :: Int -> String

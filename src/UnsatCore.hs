@@ -20,7 +20,7 @@ findUnsatCore initCnf = do
   sat <- isSat clauses
   if sat
     then pure Nothing
-    else Just <$> loop Seq.empty clauses
+    else (Just . Seq.reverse) <$> loop Seq.empty clauses
   where
     loop core clauses
       | Seq.null clauses = pure core
