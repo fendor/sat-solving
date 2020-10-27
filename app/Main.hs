@@ -4,6 +4,7 @@ import RandomSat
 import System.Random
 import qualified QBFUnsatCore as Qbf
 import qualified UnsatCore as Sat
+import qualified Muser
 import CnfPrint
 import Cnf
 import qualified Data.Text.IO as T
@@ -17,4 +18,5 @@ main = do
   -- T.putStrLn $ dimacsText cnf
   print =<< Sat.findUnsatCore cnf
   print =<< Qbf.findUnsatCore cnf
+  print =<< Muser.findUnsatCore cnf
   -- pure ()

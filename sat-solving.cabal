@@ -5,57 +5,61 @@ build-type:    Simple
 
 common exts
   default-extensions:
-    RecordWildCards
-    LambdaCase
     BangPatterns
+    LambdaCase
+    RecordWildCards
 
 library
-  import: exts
-  exposed-modules:  UnsatCore, QBFUnsatCore
+  import:           exts
+  exposed-modules:
+    Muser
+    QBFUnsatCore
+    UnsatCore
 
   -- other-modules:
   -- other-extensions:
   build-depends:
     , base
-    , minisat
     , cnf-market
     , containers
-    , unordered-containers
-    , random
+    , minisat
     , process
+    , random
+    , text
+    , unordered-containers
 
   hs-source-dirs:   src
   default-language: Haskell2010
 
 benchmark sat-solving-benchmark
-  import: exts
+  import:           exts
   main-is:          Bench.hs
 
   -- other-modules:
   -- other-extensions:
   build-depends:
     , base
-    , sat-solving
     , cnf-market
-    , stopwatch
     , criterion
     , random
+    , sat-solving
+    , stopwatch
 
   hs-source-dirs:   benchmarks
   default-language: Haskell2010
-  type: exitcode-stdio-1.0
+  type:             exitcode-stdio-1.0
 
 executable sat-solving
-  import: exts
+  import:           exts
   main-is:          Main.hs
 
   -- other-modules:
   -- other-extensions:
   build-depends:
     , base
-    , sat-solving
     , cnf-market
     , random
+    , sat-solving
     , text
 
   hs-source-dirs:   app

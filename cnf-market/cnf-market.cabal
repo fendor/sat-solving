@@ -29,6 +29,7 @@ library
     , digits
     , random
     , safe
+    , text
 
   default-language:   Haskell2010
 
