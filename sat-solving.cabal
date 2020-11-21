@@ -8,6 +8,7 @@ common exts
     BangPatterns
     LambdaCase
     RecordWildCards
+    OverloadedStrings
 
 library
   import:           exts
@@ -62,6 +63,10 @@ executable sat-solving
     , random
     , sat-solving
     , text
-
+    , stopwatch
+    , filepath
+    , directory
+    , clock
+    , containers
   hs-source-dirs:   app
   default-language: Haskell2010
