@@ -5,14 +5,14 @@ import Cnf
 import qualified Data.Text as T
 
 dimacsText :: Cnf -> Text
-dimacsText (cnf@Cnf {cnfClauses}) =
+dimacsText cnf@Cnf {cnfClauses} =
   dimacsComment cnf ++ dimacsHeader cnf ++ concatMap dimacsTextClause cnfClauses
 
 dimacsComment :: Cnf -> Text
 dimacsComment Cnf {cnfComment} = unlines $ map ("c " ++) cnfComment
 
 dimacsHeader :: Cnf -> Text
-dimacsHeader Cnf {cnfClauses, cnfNumVars, cnfNumClauses} =
+dimacsHeader Cnf {cnfNumVars, cnfNumClauses} =
   "p cnf " ++ tshow cnfNumVars ++ " " ++ tshow cnfNumClauses ++ "\n"
 
 dimacsTextClause :: Clause -> Text
@@ -25,7 +25,7 @@ readCnf input = foldr parseLine initialCnf contents
       | Just rest <- stripPrefix "c" l =
         cnf {cnfComment = T.strip rest : cnfComment cnf}
       | Just rest <- stripPrefix "p" l =
-        let Just [vars, clauses] = sequence $ map readMay $ drop 1 $ words rest
+        let Just [vars, clauses] = mapM readMay (drop 1 $ words rest)
          in cnf {cnfNumVars = vars, cnfNumClauses = clauses}
       | otherwise =
         let Just clause = sequence $ initEx $ map readMay $ words l

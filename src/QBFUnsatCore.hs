@@ -7,7 +7,6 @@ import Data.Char (isDigit)
 import Data.List (intercalate, isPrefixOf, zipWith4)
 import Data.Sequence (Seq)
 import qualified Data.Sequence as Seq
-import System.Exit
 import System.Process
 
 findUnsatCore :: Cnf -> IO (Maybe (Seq Clause))

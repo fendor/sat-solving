@@ -5,7 +5,7 @@ import Data.Map (Map)
 import qualified Data.Map as Map
 import qualified Data.IntMap as IntMap
 import qualified Data.Sequence as Seq
-import Data.Sequence (Seq(..), (<|), (|>))
+import Data.Sequence (Seq(..), (<|))
 import MiniSat
 import Control.Monad
 import RandomSat
@@ -20,7 +20,7 @@ findUnsatCore initCnf = do
   sat <- isSat clauses
   if sat
     then pure Nothing
-    else (Just . Seq.reverse) <$> loop Seq.empty clauses
+    else Just . Seq.reverse <$> loop Seq.empty clauses
   where
     loop core clauses
       | Seq.null clauses = pure core

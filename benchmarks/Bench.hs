@@ -19,15 +19,15 @@ main = do
                 }
          in randomCnf randomCnfConfig gen
   let configs =
-        map (\(cnfConfig, gen) -> (cnfConfig, uncurry3 cnfs cnfConfig gen)) $
-          zip
-            [ (3, 10, 40),
-              (3, 100, 400),
-              (4, 100, 400),
-              (3, 500, 2000),
-              (4, 500, 2000)
-            ]
-            gens
+        zipWith
+          (\cnfConfig gen -> (cnfConfig, uncurry3 cnfs cnfConfig gen))
+          [ (3, 10, 40),
+            (3, 100, 400),
+            (4, 100, 400),
+            (3, 500, 2000),
+            (4, 500, 2000)
+          ]
+          gens
 
   benchmarkGroups <- forM configs $ \((clauseLen, variables, clauseNum), cnf) -> do
     pure $

@@ -5,9 +5,6 @@ import System.Random
 import qualified QBFUnsatCore as Qbf
 import qualified UnsatCore as Sat
 import qualified Muser
-import CnfPrint
-import Cnf
-import qualified Data.Text.IO as T
 
 main :: IO ()
 main = do
